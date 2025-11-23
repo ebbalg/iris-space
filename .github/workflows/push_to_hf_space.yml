@@ -9,11 +9,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Sync with Hugging Face
-      uses: nateraw/huggingface-sync-action@v0.0.4
-      with:
-        github_repo_id: ebbalg/iris-space
-        huggingface_repo_id: ebbalg/Iris
-        repo_type: space
-        space_sdk: gradio
-        hf_token: ${{ secrets.HF_TOKEN }}
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          lfs: true
+      - name: Push to Hugging Face
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: |
+          git remote add hf https://ebbalg:$HF_TOKEN@huggingface.co/spaces/ebbalg/Iris
+          git push hf main --force
