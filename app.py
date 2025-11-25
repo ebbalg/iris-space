@@ -46,8 +46,17 @@ def chat(message, history):
 
 demo = gr.ChatInterface(
     chat,
-    title="🦙 Llama 3.2 Fine-tuned Chatbot",
-    description="Llama 3.2 1B fine-tuned on FineTome-100k",
+    title="Llama 3.2 Fine-tuned Chatbot",
+    description="""
+    This is a Llama 3.2 1B model fine-tuned on the FineTome-100k instruction dataset.
+    Try asking questions, requesting explanations, or having a conversation!
+    """,
+    examples=[
+        "Explain what machine learning is in simple terms",
+        "Write a short poem about autumn",
+        "What are the benefits of exercise?",
+        "Help me understand recursion in programming"
+    ],
 )
 
 demo.launch()
