@@ -24,31 +24,32 @@ def chat(message, history):
     
     Args:
         message: The user's current message
-        history: List of previous messages
+        history: List of previous conversation turns
     
     Returns:
         The model's response
     """
-    # Build the conversation history in the format the model expects
+
     messages = []
     
     # Add previous conversation turns
-    # history can be in different formats, so handle both cases
+    # pass history as a list of messages
     if history:
-        for item in history:
-            if isinstance(item, (list, tuple)) and len(item) == 2:
-                # Format: [user_msg, assistant_msg]
-                user_msg, assistant_msg = item
-                messages.append({"role": "user", "content": user_msg})
-                messages.append({"role": "assistant", "content": assistant_msg})
-            elif isinstance(item, dict):
-                # Format: {"role": "...", "content": "..."}
-                messages.append(item)
+        for turn in history:
+            try:
+                # Try different unpacking formats
+                if isinstance(turn, (list, tuple)):
+                    if len(turn) >= 2:
+                        user_msg, assistant_msg = turn[0], turn[1]
+                        messages.append({"role": "user", "content": str(user_msg)})
+                        messages.append({"role": "assistant", "content": str(assistant_msg)})
+                elif isinstance(turn, dict):
+                    messages.append(turn)
+
+    # Adding current user message
+    messages.append({"role": "user", "content": str(message)})
     
-    # Add the current user message
-    messages.append({"role": "user", "content": message})
-    
-    # Generate response
+    # Generating response
     response = llm.create_chat_completion(
         messages=messages,
         max_tokens=256,
