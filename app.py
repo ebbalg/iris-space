@@ -24,7 +24,7 @@ def chat(message, history):
     
     Args:
         message: The user's current message
-        history: List of [user_msg, bot_msg] pairs from previous turns
+        history: List of previous messages
     
     Returns:
         The model's response
@@ -33,9 +33,17 @@ def chat(message, history):
     messages = []
     
     # Add previous conversation turns
-    for user_msg, assistant_msg in history:
-        messages.append({"role": "user", "content": user_msg})
-        messages.append({"role": "assistant", "content": assistant_msg})
+    # history can be in different formats, so handle both cases
+    if history:
+        for item in history:
+            if isinstance(item, (list, tuple)) and len(item) == 2:
+                # Format: [user_msg, assistant_msg]
+                user_msg, assistant_msg = item
+                messages.append({"role": "user", "content": user_msg})
+                messages.append({"role": "assistant", "content": assistant_msg})
+            elif isinstance(item, dict):
+                # Format: {"role": "...", "content": "..."}
+                messages.append(item)
     
     # Add the current user message
     messages.append({"role": "user", "content": message})
