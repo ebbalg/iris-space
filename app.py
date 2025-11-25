@@ -1,66 +1,44 @@
 import gradio as gr
-from huggingface_hub import hf_hub_download
-from llama_cpp import Llama
+from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
 
-# Downloing model from Huggingface
-print("Downloading model...")
-model_path = hf_hub_download(
-    repo_id="ebbalg/llama-finetome",
-    filename="llama-3.2-1b-instruct.Q4_K_M.gguf"
-)
-
-# Loading model
-print("Loading model...")
-llm = Llama(
-    model_path=model_path,
-    n_ctx=2048,        # Context window
-    n_threads=2,       # CPU threads
-    verbose=False
+print("Loading model and tokenizer...")
+tokenizer = AutoTokenizer.from_pretrained("ebbalg/llama-finetome")
+model = AutoModelForCausalLM.from_pretrained(
+    "ebbalg/llama-finetome",
+    torch_dtype=torch.float32,
+    device_map="cpu",
 )
 
 def chat(message, history):
-    """
-    Chat function that maintains conversation history
-    
-    Args:
-        message: The user's current message
-        history: List of previous conversation turns
-    
-    Returns:
-        The model's response
-    """
+    """Chat function with conversation history"""
 
     messages = []
+    for user_msg, assistant_msg in history:
+        messages.append({"role": "user", "content": user_msg})
+        messages.append({"role": "assistant", "content": assistant_msg})
+    messages.append({"role": "user", "content": message})
     
-    # Add previous conversation turns
-    # pass history as a list of messages
-    if history:
-        for turn in history:
-            try:
-                # Try different unpacking formats
-                if isinstance(turn, (list, tuple)):
-                    if len(turn) >= 2:
-                        user_msg, assistant_msg = turn[0], turn[1]
-                        messages.append({"role": "user", "content": str(user_msg)})
-                        messages.append({"role": "assistant", "content": str(assistant_msg)})
-                elif isinstance(turn, dict):
-                    messages.append(turn)
-            except Exception as e:
-                print(f"Error processing turn {turn}: {e}")
-        
-
-    # Adding current user message
-    messages.append({"role": "user", "content": str(message)})
+    # Tokenize
+    inputs = tokenizer.apply_chat_template(
+        messages,
+        tokenize=True,
+        add_generation_prompt=True,
+        return_tensors="pt"
+    )
     
-    # Generating response
-    response = llm.create_chat_completion(
-        messages=messages,
-        max_tokens=256,
+    # Generate
+    outputs = model.generate(
+        inputs,
+        max_new_tokens=256,
         temperature=0.7,
+        do_sample=True,
         top_p=0.9,
     )
     
-    return response["choices"][0]["message"]["content"]
+    # Decode only new tokens
+    response = tokenizer.decode(outputs[0][inputs.shape[1]:], skip_special_tokens=True)
+    return response
 
 # Creating interface
 demo = gr.ChatInterface(
@@ -79,5 +57,4 @@ demo = gr.ChatInterface(
     cache_examples=False,
 )
 
-if __name__ == "__main__":
-    demo.launch()
+demo.launch()
