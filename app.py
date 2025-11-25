@@ -45,6 +45,9 @@ def chat(message, history):
                         messages.append({"role": "assistant", "content": str(assistant_msg)})
                 elif isinstance(turn, dict):
                     messages.append(turn)
+            except Exception as e:
+                print(f"Error processing turn {turn}: {e}")
+        
 
     # Adding current user message
     messages.append({"role": "user", "content": str(message)})
