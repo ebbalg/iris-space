@@ -1,4 +1,3 @@
-transformers
-torch
-accelerate
+https://github.com/abetlen/llama-cpp-python/releases/download/v0.2.90-cpu/llama_cpp_python-0.2.90-cp310-cp310-linux_x86_64.whl
 gradio
+huggingface_hub
