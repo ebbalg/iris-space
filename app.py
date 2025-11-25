@@ -14,19 +14,28 @@ llm = Llama(
     n_ctx=2048,
     n_threads=2,
     verbose=False,
-    chat_format="llama-3"  
+    chat_format="llama-3"
 )
 
 def chat(message, history):
     """Simple chat function"""
-    # Convert history to the format llama-cpp-python expects
     messages = []
-    for h in history:
-        messages.append({"role": "user", "content": h[0]})
-        messages.append({"role": "assistant", "content": h[1]})
+    
+    # Handle history - it might be a list of tuples or list of dicts
+    if history:
+        for h in history:
+            if isinstance(h, (list, tuple)):
+                # Format: [user_msg, assistant_msg]
+                messages.append({"role": "user", "content": str(h[0])})
+                messages.append({"role": "assistant", "content": str(h[1])})
+            elif isinstance(h, dict):
+                # Format: {"role": "...", "content": "..."}
+                messages.append(h)
+    
+    # Add current message
     messages.append({"role": "user", "content": message})
     
-
+    # Generate response
     response = llm.create_chat_completion(
         messages=messages,
         max_tokens=256,
