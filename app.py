@@ -46,16 +46,18 @@ def chat(message, history):
 
 demo = gr.ChatInterface(
     chat,
-    title="Llama 3.2 Fine-tuned Chatbot",
+    title="TAI: AI Teacher Assistant",
     description="""
-    This is a Llama 3.2 1B model fine-tuned on the FineTome-100k instruction dataset.
-    Try asking questions, requesting explanations, or having a conversation!
+    Ask questions about AI and Machine Learning! I can help you better understand the
+    theoretical and practical skills to succeed in this field.
+    
+    This Llama 3.2 1B model was fine-tuned on the FineTome-100k instruction dataset.
     """,
     examples=[
-        "Explain what machine learning is in simple terms",
-        "Write a short poem about autumn",
-        "What are the benefits of exercise?",
-        "Help me understand recursion in programming"
+        "Which tasks can recurrent neural networks address?",
+        "Explain backpropagation in simple terms.",
+        "What are the benefits of regularization during training?",
+        "Write a short summary of advancements that allowed for deep neural networks to work."
     ],
 )
 
