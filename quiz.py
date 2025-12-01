@@ -48,19 +48,24 @@ def parse_quiz(text):
         opts_sorted = sorted(opts, key=lambda x: x[0]) if opts else []
         for letter, opt_text in opts_sorted:
             options.append(opt_text.strip().replace("\n", " "))
-
+            
         # Extract correct answer
         ans = None
+        # Pattern 1: **Correct Answer: X**
         m_corr = re.search(r'\*\*\s*Correct Answer\s*:\s*([A-D])\s*\*\*', block, flags=re.I)
-        if not m_corr:
-            m_corr = re.search(r'Correct Answer\s*:\s*([A-D])', block, flags=re.I)
-        if not m_corr:
-            # possible "Correct: A" or "Answer: A"
-            m_corr = re.search(r'(Correct|Answer)\s*[:\-]\s*([A-D])', block, flags=re.I)
-            if m_corr:
-                ans = m_corr.group(2).upper()
-        else:
+        if m_corr:
             ans = m_corr.group(1).upper()
+        else:
+            # Pattern 2: Correct Answer: X
+            m_corr = re.search(r'Correct Answer\s*:\s*([A-D])', block, flags=re.I)
+            if m_corr:
+                ans = m_corr.group(1).upper()
+            else:
+                # Pattern 3: Correct: X or Answer: X
+                m_corr = re.search(r'(?:Correct|Answer)\s*[:\-]\s*([A-D])', block, flags=re.I)
+                if m_corr:
+                    ans = m_corr.group(1).upper()
+
 
         parsed.append({
             "q": question_text,
@@ -72,7 +77,7 @@ def parse_quiz(text):
 
 def format_question(q_dict):
     """Return question text + options as a string for display in Markdown"""
-    lines = [q_dict["q"]]
+    lines = [q_dict["q"] + "<br>"]
     for letter, option in zip(["A","B","C","D"], q_dict["options"]):
         lines.append(f"{letter}: {option}")
     return "<br>".join(lines)
@@ -104,6 +109,7 @@ def answer_question(parsed_quiz, selected, idx, score):
 
     question_text = format_question(current)
     progress = f"{idx+1}/{len(parsed_quiz)}"
+
     return question_text, idx, score, feedback, progress
 
 
