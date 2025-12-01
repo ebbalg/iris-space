@@ -27,46 +27,35 @@ def create_quiz(llm):
 
 def parse_quiz(text):
     question_blocks = re.findall(r'^\s*(\d+)\.\s*(.*?)\s*(?=^\d+\.|\Z)', text, flags=re.S|re.MULTILINE)
-
     parsed = []
     for idx, block_text in question_blocks:
         block = block_text.strip()
         # Extract the question line before options
-        # Find A) position
         m_a = re.search(r'\nA[\)\.]', block)
         if m_a:
             question_text = block[:m_a.start()].strip()
             rest = block[m_a.start():].strip()
         else:
-            # if no A) found, entire block as question
             question_text = block
             rest = ""
 
         # Extract options A-D
         opts = re.findall(r'^([A-D])[\)\.]\s*(.+)$', rest, flags=re.MULTILINE)
-        options = []
-        # sort options by letter just in case
-        opts_sorted = sorted(opts, key=lambda x: x[0]) if opts else []
-        for letter, opt_text in opts_sorted:
-            options.append(opt_text.strip().replace("\n", " "))
-            
+        options = [opt_text.strip() for letter, opt_text in sorted(opts, key=lambda x: x[0])]
+
         # Extract correct answer
         ans = None
-        # Pattern 1: **Correct Answer: X**
         m_corr = re.search(r'\*\*\s*Correct Answer\s*:\s*([A-D])\s*\*\*', block, flags=re.I)
         if m_corr:
             ans = m_corr.group(1).upper()
         else:
-            # Pattern 2: Correct Answer: X
             m_corr = re.search(r'Correct Answer\s*:\s*([A-D])', block, flags=re.I)
             if m_corr:
                 ans = m_corr.group(1).upper()
             else:
-                # Pattern 3: Correct: X or Answer: X
                 m_corr = re.search(r'(?:Correct|Answer)\s*[:\-]\s*([A-D])', block, flags=re.I)
                 if m_corr:
                     ans = m_corr.group(1).upper()
-
 
         parsed.append({
             "q": question_text,
@@ -75,6 +64,7 @@ def parse_quiz(text):
         })
 
     return parsed
+
 
 def format_question(q_dict):
     """Return question text + options as a string for display in Markdown"""
