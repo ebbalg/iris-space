@@ -6,26 +6,25 @@ import time
 
 def create_quiz(llm):
     system_prompt = {
-        "role": "system",
-        "content": (
-            "Generate exactly 10 machine-learning multiple choice questions.\n"
-            "FOLLOW THIS FORMAT EXACTLY. DO NOT add markdown, bullets, quotes, headings, or commentary.\n"
-            "Spaces and punctuation MUST match exactly.\n\n"
+    "role": "system",
+    "content": (
+        "Generate exactly 10 multiple-choice questions about machine learning.\n"
+        "Each question must have 4 options (A-D) and exactly one correct answer.\n\n"
+        "Use the exact format below, but replace 'Question text goes here.' and 'Text' with real questions and answers:\n\n"
 
-            "QUESTION 1\n"
-            "Question text.\n"
-            "OPTION A: Text\n"
-            "OPTION B: Text\n"
-            "OPTION C: Text\n"
-            "OPTION D: Text\n"
-            "ANSWER: A\n"
-            "END\n\n"
+        "QUESTION 1\n"
+        "Question text goes here.\n"
+        "OPTION A: Text\n"
+        "OPTION B: Text\n"
+        "OPTION C: Text\n"
+        "OPTION D: Text\n"
+        "ANSWER: A\n"
+        "END\n\n"
 
-            "Repeat for QUESTION 2 through QUESTION 10.\n"
-            "DO NOT add blank lines except exactly where shown.\n"
-            "DO NOT change OPTION labels.\n"
-        )
-    }
+        "Repeat the same format for QUESTIONS 2 through 10."
+    )
+}
+
 
     response = llm.create_chat_completion(
         messages=[system_prompt],
