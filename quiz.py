@@ -103,7 +103,7 @@ def answer_question(parsed_quiz, selected, idx, score):
         score += 1
         feedback = "✅ Correct!"
         # Move to next question after 1 second
-        time.sleep(1)
+        time.sleep(2)
         idx += 1
         if idx >= len(parsed_quiz):
             question_text = "🎉 Quiz Complete!"
