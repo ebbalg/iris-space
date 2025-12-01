@@ -68,16 +68,11 @@ def parse_quiz(text):
 
     return parsed
 
-def start_quiz(quiz_raw, quiz_parsed):
+def start_quiz(quiz_parsed):
     """Initialize quiz state, return first question display."""
     idx = 0
     q = quiz_parsed[idx]
-    return {
-        "question_text": q["q"],
-        "feedback": "",
-        "progress": f"{idx+1}/{len(quiz_parsed)}",
-        "show_start": False
-    }, idx, 0  # idx, score
+    return q["q"], "", f"{idx+1}/{len(quiz_parsed)}", idx, 0, False
 
 def answer_question(parsed_quiz, selected, idx, score):
     current = parsed_quiz[idx]
