@@ -2,10 +2,26 @@ import re
 import gradio as gr
 from quiz import create_quiz, parse_quiz, start_quiz, submit_and_next, restart_quiz
 from chatbot import chat
+from llama_cpp import Llama
+from huggingface_hub import hf_hub_download
 
+print("Downloading model...")
+model_path = hf_hub_download(
+    repo_id="ebbalg/llama-finetome",
+    filename="llama-3.2-1b-instruct.Q4_K_M.gguf"
+)
+
+print("Loading model...")
+llm = Llama(
+    model_path=model_path,
+    n_ctx=2048,
+    n_threads=2,
+    verbose=False,
+    chat_format="llama-3"
+)
 
 print("Creating quiz...")
-raw_quiz = create_quiz()
+raw_quiz = create_quiz(llm)
 parsed_quiz = parse_quiz(raw_quiz)
 
 
@@ -18,7 +34,7 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
     This Llama 3.2 1B model was fine-tuned on the FineTome-100k instruction dataset.
     """)
 
-    initial_quiz = create_quiz()
+    initial_quiz = create_quiz(llm)
     quiz_state = gr.State(initial_quiz)
 
 

@@ -1,22 +1,5 @@
-from llama_cpp import Llama
-from huggingface_hub import hf_hub_download
 
-print("Downloading model...")
-model_path = hf_hub_download(
-    repo_id="ebbalg/llama-finetome",
-    filename="llama-3.2-1b-instruct.Q4_K_M.gguf"
-)
-
-print("Loading model...")
-llm = Llama(
-    model_path=model_path,
-    n_ctx=2048,
-    n_threads=2,
-    verbose=False,
-    chat_format="llama-3"
-)
-
-def chat(message, history):
+def chat(llm, message, history):
     """Simple chat function"""
     messages = []
     
