@@ -71,29 +71,34 @@ def parse_quiz(text):
 
 def format_question(q_dict):
     """Return question text + options as a string for display"""
-    options_text = "\n".join([f"{letter}: {text}" for letter, text in zip(["A","B","C","D"], q_dict["options"])])
-    return f"**Q:** {q_dict['q']}\n\n{options_text}"
+    lines = [q_dict["q"]]
+    for letter, option in zip(["A","B","C","D"], q_dict["options"]):
+        lines.append(f"{letter}: {option}")
+    return "\n".join(lines)
 
-def start_quiz(quiz_parsed):
+def start_quiz(parsed_quiz):
+    """Initialize quiz state, return first question display."""
     idx = 0
-    q = quiz_parsed[idx]
-    q_text = format_question(q)
-    return q_text, "", f"{idx+1}/{len(quiz_parsed)}", idx, 0, False
+    q = parsed_quiz[idx]
+    question_text = format_question(q)
+    return question_text, "", f"{idx+1}/{len(parsed_quiz)}", idx, 0, False
+
 
 def answer_question(parsed_quiz, selected, idx, score):
     current = parsed_quiz[idx]
     correct = current["answer"]
+    
     if selected.upper() == correct:
         score += 1
         feedback = "✅ Correct!"
-        # Optionally: move to next question here or keep same question
-        idx += 1 if idx + 1 < len(parsed_quiz) else idx
+        # Keep idx the same so user can see the feedback before moving manually
     else:
         feedback = "❌ Incorrect, try again."
 
-    q_text = format_question(current if idx < len(parsed_quiz) else {"q": "Quiz Complete!", "options": ["","","",""]})
-    progress = f"{min(idx+1,len(parsed_quiz))}/{len(parsed_quiz)}"
-    return q_text, idx, score, feedback, progress
+    question_text = format_question(current)
+    progress = f"{idx+1}/{len(parsed_quiz)}"
+    
+    return question_text, idx, score, feedback, progress
 
 
 def retry_quiz():

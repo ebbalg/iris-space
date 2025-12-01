@@ -66,10 +66,11 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
             progress_md = gr.Markdown("")
 
             # Answer buttons
-            btn_A = gr.Button("A", visible=False)
-            btn_B = gr.Button("B", visible=False)
-            btn_C = gr.Button("C", visible=False)
-            btn_D = gr.Button("D", visible=False)
+            with gr.Row():
+                btn_A = gr.Button("A", visible=False)
+                btn_B = gr.Button("B", visible=False)
+                btn_C = gr.Button("C", visible=False)
+                btn_D = gr.Button("D", visible=False)
             retry_btn = gr.Button("Retry", visible=False)
 
             # States
