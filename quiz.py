@@ -78,10 +78,22 @@ def format_question(q_dict):
 
 def start_quiz(parsed_quiz):
     """Initialize quiz state, return first question display."""
-    idx = 0
-    q = parsed_quiz[idx]
-    question_text = format_question(q)
-    return question_text, "", f"{idx+1}/{len(parsed_quiz)}", idx, 0, False
+    q_data = parsed_quiz[0]
+    q_text = format_question(q_data)
+
+    return (
+        q_text,                     # question + options
+        "",                         # feedback
+        f"1/{len(parsed_quiz)}",    # progress
+        0,                          # idx
+        0,                          # score
+        gr.update(visible=False),   # hide start button
+        gr.update(visible=True),    # show btn_A
+        gr.update(visible=True),    # show btn_B
+        gr.update(visible=True),    # show btn_C
+        gr.update(visible=True),    # show btn_D
+        gr.update(visible=True)     # show retry button
+    )
 
 
 def answer_question(parsed_quiz, selected, idx, score):
@@ -91,7 +103,6 @@ def answer_question(parsed_quiz, selected, idx, score):
     if selected.upper() == correct:
         score += 1
         feedback = "✅ Correct!"
-        # Keep idx the same so user can see the feedback before moving manually
     else:
         feedback = "❌ Incorrect, try again."
 

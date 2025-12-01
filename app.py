@@ -110,8 +110,7 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
                 btn.click(
                     fn=btn_fn,
                     inputs=[idx_state, score_state],
-                    outputs=[question_md, idx_state, score_state, feedback_md, progress_md,
-                            btn_A, btn_B, btn_C, btn_D]
+                    outputs=[question_md, idx_state, score_state, feedback_md, progress_md]
                 )
 
 
