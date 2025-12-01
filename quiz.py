@@ -34,9 +34,6 @@ def create_quiz(llm):
 
 
 def parse_quiz(text):
-    """
-    Parse quiz in strict format: QUESTION N / OPTION A-D / ANSWER: X / END
-    """
     parsed = []
 
     blocks = [b.strip() for b in text.split("QUESTION ") if b.strip()]
@@ -45,12 +42,8 @@ def parse_quiz(text):
         if not lines:
             continue
 
-        # Skip the number line if it’s just a digit
-        if lines[0].isdigit():
-            lines = lines[1:]
-
-        # Question text is the first line now
-        question_text = lines[0]
+        # Question: first line that does not start with OPTION or ANSWER
+        question_text = next((l for l in lines if not l.startswith("OPTION") and not l.startswith("ANSWER")), "Question missing")
 
         # Parse options
         options = []
@@ -73,10 +66,8 @@ def parse_quiz(text):
     return parsed
 
 
-
 def format_question(q_dict):
-    """Return question text + options as HTML for Markdown display"""
-    lines = [q_dict["q"], ""]  # blank line between question and options
+    lines = [q_dict["q"], ""]  # blank line
     for letter, option in zip(["A","B","C","D"], q_dict["options"]):
         lines.append(f"{letter}: {option}")
     return "<br>".join(lines)
