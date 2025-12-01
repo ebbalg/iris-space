@@ -78,15 +78,22 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
 
             # Start quiz
             def start_quiz_ui():
-                q_text, feedback, progress, idx, score, _ = start_quiz(parsed_quiz)
+                q_data = parsed_quiz[0]
+                q_text = q_data["q"]
+                options = q_data["options"]  # list of 4 strings for A-D
+
                 return (
-                    q_text, feedback, progress, idx, score,
-                    gr.update(visible=False),  # hide start button
-                    gr.update(visible=True),   # show A
-                    gr.update(visible=True),   # show B
-                    gr.update(visible=True),   # show C
-                    gr.update(visible=True),   # show D
-                    gr.update(visible=True)    # show retry
+                    q_text,
+                    "",  # feedback
+                    f"1/{len(parsed_quiz)}",  # progress
+                    0,  # idx
+                    0,  # score
+                    gr.update(visible=False),   # hide start button
+                    gr.update(visible=True, value=f"A: {options[0]}"),  # btn_A
+                    gr.update(visible=True, value=f"B: {options[1]}"),  # btn_B
+                    gr.update(visible=True, value=f"C: {options[2]}"),  # btn_C
+                    gr.update(visible=True, value=f"D: {options[3]}"),  # btn_D
+                    gr.update(visible=True)  # retry
                 )
 
             start_btn.click(
@@ -102,8 +109,10 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
                 btn.click(
                     fn=btn_fn,
                     inputs=[idx_state, score_state],
-                    outputs=[question_md, idx_state, score_state, feedback_md, progress_md]
+                    outputs=[question_md, idx_state, score_state, feedback_md, progress_md,
+                            btn_A, btn_B, btn_C, btn_D]
                 )
+
 
             # Retry button
             def retry_quiz_ui():

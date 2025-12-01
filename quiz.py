@@ -1,4 +1,5 @@
 import re
+import gradio as gr
 
 ### CREATE AND PARSE QUIZ
 
@@ -81,11 +82,45 @@ def answer_question(parsed_quiz, selected, idx, score):
         score += 1
         idx += 1
         if idx >= len(parsed_quiz):
-            return "Quiz Complete!", idx, score, "✅ Correct!", f"{len(parsed_quiz)}/{len(parsed_quiz)}"
-        q = parsed_quiz[idx]
-        return q["q"], idx, score, "✅ Correct!", f"{idx+1}/{len(parsed_quiz)}"
+            return (
+                "🎉 Quiz Complete!",
+                idx,
+                score,
+                "✅ Correct!",
+                f"{len(parsed_quiz)}/{len(parsed_quiz)}",
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False),
+                gr.update(visible=False)
+            )
+        # next question
+        next_q = parsed_quiz[idx]
+        options = next_q["options"]
+        return (
+            next_q["q"],
+            idx,
+            score,
+            "✅ Correct!",
+            f"{idx+1}/{len(parsed_quiz)}",
+            gr.update(value=f"A: {options[0]}"),
+            gr.update(value=f"B: {options[1]}"),
+            gr.update(value=f"C: {options[2]}"),
+            gr.update(value=f"D: {options[3]}")
+        )
     else:
-        return current["q"], idx, score, "❌ Incorrect, try again.", f"{idx+1}/{len(parsed_quiz)}"
+        # incorrect → keep question and options the same
+        options = current["options"]
+        return (
+            current["q"],
+            idx,
+            score,
+            "❌ Incorrect, try again.",
+            f"{idx+1}/{len(parsed_quiz)}",
+            gr.update(value=f"A: {options[0]}"),
+            gr.update(value=f"B: {options[1]}"),
+            gr.update(value=f"C: {options[2]}"),
+            gr.update(value=f"D: {options[3]}")
+        )
 
 def retry_quiz():
     return start_quiz()
