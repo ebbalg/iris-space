@@ -26,7 +26,8 @@ def create_quiz(llm):
     return response["choices"][0]["message"]["content"]
 
 def parse_quiz(text):
-    question_blocks = re.findall(r'(\d+)\.\s*(.*?)(?=\n\d+\.|\Z)', text, flags=re.S)
+    question_blocks = re.findall(r'^\s*(\d+)\.\s*(.*?)\s*(?=^\d+\.|\Z)', text, flags=re.S|re.MULTILINE)
+
     parsed = []
     for idx, block_text in question_blocks:
         block = block_text.strip()
@@ -42,7 +43,7 @@ def parse_quiz(text):
             rest = ""
 
         # Extract options A-D
-        opts = re.findall(r'([A-D])[\)\.]\s*(.+?)(?=\n[A-D][\)\.]|\n\*\*Correct|\n\d+\.|\Z)', rest, flags=re.S)
+        opts = re.findall(r'^([A-D])[\)\.]\s*(.+)$', rest, flags=re.MULTILINE)
         options = []
         # sort options by letter just in case
         opts_sorted = sorted(opts, key=lambda x: x[0]) if opts else []
