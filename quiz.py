@@ -47,49 +47,42 @@ def create_quiz(llm):
 
 
 
+import re
+
 def parse_quiz(text):
-    # Normalize newlines
-    text = text.replace("\r", "")
-
-    # Split per question block using regex
-    blocks = re.split(r"QUESTION\s+\d+\s*", text, flags=re.IGNORECASE)
-    blocks = [b.strip() for b in blocks if b.strip()]
-
+    """
+    Parse quiz in inline format:
+    QUESTION N <question text> A) <option> B) <option> C) <option> D) <option> ANSWER: <letter> END
+    """
     parsed = []
 
+    # Split by QUESTION N
+    blocks = re.split(r'QUESTION \d+', text)
+    blocks = [b.strip() for b in blocks if b.strip()]
+
     for block in blocks:
-        # Extract question (first non-option, non-answer line)
-        lines = [l.strip() for l in block.splitlines() if l.strip()]
+        # Extract question text (everything before 'A)')
+        q_match = re.match(r'(.+?)\s+A\)', block)
+        question_text = q_match.group(1).strip() if q_match else "Question missing"
 
-        question_text = None
-        for l in lines:
-            if not l.upper().startswith("OPTION") and not l.upper().startswith("ANSWER"):
-                question_text = l
-                break
+        # Extract options using regex for A)-D)
+        options = []
+        for letter in ['A', 'B', 'C', 'D']:
+            opt_match = re.search(rf'{letter}\)\s*(.+?)(?=\s+[A-D]\)|\s+ANSWER:)', block)
+            options.append(opt_match.group(1).strip() if opt_match else "")
 
-        # Extract OPTIONS (fallback to empty string if missing)
-        def find_opt(prefix):
-            m = re.search(prefix + r"\s*:\s*(.*)", block, flags=re.IGNORECASE)
-            return m.group(1).strip() if m else ""
-
-        options = [
-            find_opt(r"OPTION A"),
-            find_opt(r"OPTION B"),
-            find_opt(r"OPTION C"),
-            find_opt(r"OPTION D"),
-        ]
-
-        # Extract ANSWER
-        m = re.search(r"ANSWER\s*:\s*([A-D])", block, flags=re.IGNORECASE)
-        correct = m.group(1).upper() if m else "A"
+        # Extract correct answer
+        answer_match = re.search(r'ANSWER:\s*([A-D])', block)
+        correct = answer_match.group(1).upper() if answer_match else None
 
         parsed.append({
-            "q": question_text or "Question missing",
+            "q": question_text,
             "options": options,
             "answer": correct
         })
 
     return parsed
+
 
 
 
