@@ -114,8 +114,6 @@ def answer_question(parsed_quiz, selected, idx, score):
         feedback = ""
     else:
         feedback = "❌ Incorrect, try again."
-        time.sleep(1)
-        feedback = ""
 
     question_text = format_question(current)
     progress = f"{idx+1}/{len(parsed_quiz)}"
