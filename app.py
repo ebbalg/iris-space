@@ -15,7 +15,6 @@ model_path = hf_hub_download(
 llm = Llama(model_path=model_path, n_ctx=2048, n_threads=2, verbose=False, chat_format="llama-3")
 
 raw_quiz = create_quiz(llm)
-print(raw_quiz)
 parsed_quiz = parse_quiz(raw_quiz)
 
 with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
@@ -23,7 +22,7 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
     # TAI: Your AI Teacher Assistant
     Ask questions about AI and Machine Learning! Test your understanding with a quiz.
     """)
-    
+    gr.Markdown(raw_quiz)
     gr.Markdown(str(parsed_quiz[0]))  
 
     with gr.Row():
