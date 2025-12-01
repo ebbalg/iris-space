@@ -44,21 +44,59 @@ def chat(message, history):
     
     return response["choices"][0]["message"]["content"]
 
-demo = gr.ChatInterface(
-    chat,
-    title="TAI: AI Teacher Assistant",
-    description="""
+def quiz():
+    '''Generate a multiple choice quiz with 10 questions (created by the llm)'''
+    system_prompt = {
+        "role": "system",
+        "content": (
+            "Generate a set of 10 multiple-choice questions about machine learning for a student."
+            "Each question should have 4 answer options (A–D) with a single correct answer.\n\n"
+            "Format exactly like this:\n\n"
+            "1. Question text...\n"
+            "A) ...\nB) ...\nC) ...\nD) ...\n**Correct Answer: X**\n\n"
+        )
+    }
+
+    response = llm.create_chat_completion(
+        messages=[system_prompt],
+        max_tokens=512,
+        temperature=0.7
+    )
+
+    return response["choices"][0]["message"]["content"]
+
+
+
+
+with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
+    gr.Markdown("""
+    # TAI: Your AI Teacher Assistant
     Ask questions about AI and Machine Learning! I can help you better understand the
-    theoretical and practical skills to succeed in this field.
-    
+    theoretical and practical skills to succeed in this field. Test your understanding with a quiz!
+                
     This Llama 3.2 1B model was fine-tuned on the FineTome-100k instruction dataset.
-    """,
-    examples=[
-        "Which tasks can recurrent neural networks address?",
-        "Explain backpropagation in simple terms.",
-        "What are the benefits of regularization during training?",
-        "Write a short summary of advancements that allowed for deep neural networks to work."
-    ],
-)
+    """)
+    with gr.Row():
+
+        # Left column: chat
+        with gr.Column(scale=2):
+            chatbot = gr.ChatInterface(
+                chat,
+                examples=[
+                    "Which tasks can recurrent neural networks address?",
+                    "Explain backpropagation in simple terms.",
+                    "What are the benefits of regularization during training?",
+                    "Write a short summary of advancements that allowed for deep neural networks to work."
+                ]
+            )
+        
+        # Right column: quiz
+        with gr.Column(scale=1):
+            gr.Markdown("## Machine Learning Quiz")
+            quiz_btn = gr.Button("Start Quiz", variant="primary")
+            quiz_output = gr.Markdown()
+
+            quiz_btn.click(fn=quiz, outputs=quiz_output)
+
 
 demo.launch()
