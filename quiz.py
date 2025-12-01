@@ -1,5 +1,6 @@
 import re
 import gradio as gr
+import time
 
 ### CREATE AND PARSE QUIZ
 
@@ -70,11 +71,11 @@ def parse_quiz(text):
     return parsed
 
 def format_question(q_dict):
-    """Return question text + options as a string for display"""
+    """Return question text + options as a string for display in Markdown"""
     lines = [q_dict["q"]]
     for letter, option in zip(["A","B","C","D"], q_dict["options"]):
         lines.append(f"{letter}: {option}")
-    return "\n".join(lines)
+    return "<br>".join(lines)
 
 def start_quiz(parsed_quiz):
     """Initialize quiz state, return first question display."""
@@ -90,12 +91,19 @@ def answer_question(parsed_quiz, selected, idx, score):
     if selected.upper() == correct:
         score += 1
         feedback = "✅ Correct!"
+        # Move to next question after 1 second
+        time.sleep(1)
+        idx += 1
+        if idx >= len(parsed_quiz):
+            question_text = "🎉 Quiz Complete!"
+            progress = f"{len(parsed_quiz)}/{len(parsed_quiz)}"
+            return question_text, idx, score, feedback, progress
+        current = parsed_quiz[idx]
     else:
         feedback = "❌ Incorrect, try again."
 
     question_text = format_question(current)
     progress = f"{idx+1}/{len(parsed_quiz)}"
-    
     return question_text, idx, score, feedback, progress
 
 

@@ -45,7 +45,8 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
 
         # Left column: chat
         with gr.Column(scale=1):
-            chatbot = gr.ChatInterface(
+            gr.Markdown("## Ask me anything")
+            gr.ChatInterface(
                 fn=lambda message, history: chat(llm, message, history),
                 examples=[
                     "Which tasks can recurrent neural networks address?",
