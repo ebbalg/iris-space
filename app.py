@@ -1,9 +1,12 @@
 import gradio as gr
-from quiz import start_quiz, answer_question, parsed_quiz, format_question
+from quiz import start_quiz, answer_question, parse_quiz, format_question
 from chatbot import chat
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
 from functools import partial
+
+raw_quiz = create_quiz(llm)
+parsed_quiz = parse_quiz(raw_quiz)
 
 # Load model (unchanged)
 model_path = hf_hub_download(
