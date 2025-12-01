@@ -13,14 +13,14 @@ def create_quiz(llm):
             "Each question must have 4 options (A-D) and exactly one correct answer.\n\n"
             "Use the exact format below, no extra text, no markdown:\n\n"
             "QUESTION 1\n"
-            "Question text...\n\n"
+            " <The first generated question> \n\n"
             "OPTION A: ...\n"
             "OPTION B: ...\n"
             "OPTION C: ...\n"
             "OPTION D: ...\n"
             "ANSWER: X\n"
             "END\n\n"
-            "Repeat for QUESTIONS 2 through 10."
+            "Repeat for QUESTIONS 2 through 10 with real questions and answers."
         )
     }
 
