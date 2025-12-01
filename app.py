@@ -1,5 +1,5 @@
 import gradio as gr
-from quiz import start_quiz, answer_question, parsed_quiz, format_question
+from quiz import start_quiz, answer_question, parse_quiz, format_question
 from chatbot import chat
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
@@ -54,7 +54,7 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
 
             # Start Quiz
             def start_quiz_ui():
-                q_text, feedback, progress, idx, score = start_quiz(parsed_quiz)
+                q_text, feedback, progress, idx, score = start_quiz(parse_quiz)
                 return (
                     q_text, feedback, progress, idx, score,
                     gr.update(visible=False),  # hide start
@@ -74,7 +74,7 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
 
             # Answer buttons
             for letter, btn in zip(["A", "B", "C", "D"], [btn_A, btn_B, btn_C, btn_D]):
-                btn_fn = partial(answer_question, parsed_quiz, letter)
+                btn_fn = partial(answer_question, parse_quiz, letter)
                 btn.click(
                     fn=btn_fn,
                     inputs=[idx_state, score_state],
@@ -83,7 +83,7 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
 
             # Retry Quiz
             def retry_quiz_ui():
-                q_text, feedback, progress, idx, score = start_quiz(parsed_quiz)
+                q_text, feedback, progress, idx, score = start_quiz(parse_quiz)
                 return (
                     q_text, feedback, progress, idx, score,
                     gr.update(visible=True),  # show start
