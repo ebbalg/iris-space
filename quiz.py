@@ -5,72 +5,83 @@ import time
 ### CREATE AND PARSE QUIZ
 
 def create_quiz(llm):
-    """Generate a multiple-choice quiz with 10 questions in a strict parseable format"""
     system_prompt = {
         "role": "system",
         "content": (
-            "Generate 10 multiple-choice questions about machine learning for a student.\n"
-            "Each question must have 4 options (A-D) and exactly one correct answer.\n\n"
-            "Use the exact format below, no extra text, no markdown:\n\n"
+            "Generate exactly 10 machine-learning multiple choice questions.\n"
+            "FOLLOW THIS FORMAT EXACTLY. DO NOT add markdown, bullets, quotes, headings, or commentary.\n"
+            "Spaces and punctuation MUST match exactly.\n\n"
+
             "QUESTION 1\n"
-            " <The first generated question> \n\n"
-            "OPTION A: ...\n"
-            "OPTION B: ...\n"
-            "OPTION C: ...\n"
-            "OPTION D: ...\n"
-            "ANSWER: X\n"
+            "Question text.\n"
+            "OPTION A: Text\n"
+            "OPTION B: Text\n"
+            "OPTION C: Text\n"
+            "OPTION D: Text\n"
+            "ANSWER: A\n"
             "END\n\n"
-            "Repeat for QUESTIONS 2 through 10 with real questions and answers."
+
+            "Repeat for QUESTION 2 through QUESTION 10.\n"
+            "DO NOT add blank lines except exactly where shown.\n"
+            "DO NOT change OPTION labels.\n"
         )
     }
 
     response = llm.create_chat_completion(
         messages=[system_prompt],
         max_tokens=1024,
-        temperature=0.7
+        temperature=0.5
     )
 
     return response["choices"][0]["message"]["content"]
 
 
+
 def parse_quiz(text):
-    """
-    Parse quiz in strict format: QUESTION N / OPTION A-D / ANSWER: X / END
-    """
+    # Normalize newlines
+    text = text.replace("\r", "")
+
+    # Split per question block using regex
+    blocks = re.split(r"QUESTION\s+\d+\s*", text, flags=re.IGNORECASE)
+    blocks = [b.strip() for b in blocks if b.strip()]
+
     parsed = []
 
-    blocks = [b.strip() for b in text.split("QUESTION ") if b.strip()]
     for block in blocks:
+        # Extract question (first non-option, non-answer line)
         lines = [l.strip() for l in block.splitlines() if l.strip()]
-        if not lines:
-            continue
 
-        # Remove the first line if it’s just a number
-        if lines[0].isdigit():
-            lines = lines[1:]
+        question_text = None
+        for l in lines:
+            if not l.upper().startswith("OPTION") and not l.upper().startswith("ANSWER"):
+                question_text = l
+                break
 
-        # Question: first line that does not start with OPTION or ANSWER
-        question_text = next((l for l in lines if not l.startswith("OPTION") and not l.startswith("ANSWER")), "Question missing")
+        # Extract OPTIONS (fallback to empty string if missing)
+        def find_opt(prefix):
+            m = re.search(prefix + r"\s*:\s*(.*)", block, flags=re.IGNORECASE)
+            return m.group(1).strip() if m else ""
 
-        # Parse options
-        options = []
-        for line in lines:
-            if line.startswith("OPTION "):
-                parts = line.split(":", 1)
-                if len(parts) == 2:
-                    options.append(parts[1].strip())
+        options = [
+            find_opt(r"OPTION A"),
+            find_opt(r"OPTION B"),
+            find_opt(r"OPTION C"),
+            find_opt(r"OPTION D"),
+        ]
 
-        # Correct answer
-        correct_line = next((l for l in lines if l.startswith("ANSWER:")), None)
-        correct = correct_line.split(":",1)[1].strip().upper() if correct_line else None
+        # Extract ANSWER
+        m = re.search(r"ANSWER\s*:\s*([A-D])", block, flags=re.IGNORECASE)
+        correct = m.group(1).upper() if m else "A"
 
         parsed.append({
-            "q": question_text,
+            "q": question_text or "Question missing",
             "options": options,
             "answer": correct
         })
 
     return parsed
+
+
 
 def format_question(q_dict):
     lines = [q_dict["q"], ""]  # blank line
