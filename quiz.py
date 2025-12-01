@@ -34,36 +34,35 @@ def create_quiz(llm):
 
 
 def parse_quiz(text):
+    """
+    Parse quiz in strict format: QUESTION N / OPTION A-D / ANSWER: X / END
+    """
     parsed = []
 
-    # Split the text by 'QUESTION ' to get each question block
     blocks = [b.strip() for b in text.split("QUESTION ") if b.strip()]
     for block in blocks:
-        # First line is the question number, we can ignore it
-        lines = block.splitlines()
-        # Remove empty lines
-        lines = [l.strip() for l in lines if l.strip()]
+        lines = [l.strip() for l in block.splitlines() if l.strip()]
         if not lines:
             continue
 
-        # Question text is the first line after number
-        question_text = lines[1] if lines[0].isdigit() else lines[0]
+        # Skip the number line if it’s just a digit
+        if lines[0].isdigit():
+            lines = lines[1:]
+
+        # Question text is the first line now
+        question_text = lines[0]
 
         # Parse options
         options = []
         for line in lines:
             if line.startswith("OPTION "):
-                # Example: "OPTION A: To learn from labeled data"
                 parts = line.split(":", 1)
                 if len(parts) == 2:
                     options.append(parts[1].strip())
 
-        # Parse correct answer
+        # Correct answer
         correct_line = next((l for l in lines if l.startswith("ANSWER:")), None)
-        if correct_line:
-            correct = correct_line.split(":", 1)[1].strip().upper()
-        else:
-            correct = None
+        correct = correct_line.split(":",1)[1].strip().upper() if correct_line else None
 
         parsed.append({
             "q": question_text,
@@ -74,9 +73,10 @@ def parse_quiz(text):
     return parsed
 
 
+
 def format_question(q_dict):
-    """Return question text + options as a string for Markdown display"""
-    lines = [q_dict["q"] + "<br>"]
+    """Return question text + options as HTML for Markdown display"""
+    lines = [q_dict["q"], ""]  # blank line between question and options
     for letter, option in zip(["A","B","C","D"], q_dict["options"]):
         lines.append(f"{letter}: {option}")
     return "<br>".join(lines)
