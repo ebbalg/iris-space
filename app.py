@@ -1,12 +1,11 @@
 import gradio as gr
-from quiz import start_quiz, answer_question, parse_quiz, format_question
+from quiz import *
 from chatbot import chat
 from llama_cpp import Llama
 from huggingface_hub import hf_hub_download
 from functools import partial
 
-raw_quiz = create_quiz(llm)
-parsed_quiz = parse_quiz(raw_quiz)
+
 
 # Load model (unchanged)
 model_path = hf_hub_download(
@@ -14,6 +13,9 @@ model_path = hf_hub_download(
     filename="llama-3.2-1b-instruct.Q4_K_M.gguf"
 )
 llm = Llama(model_path=model_path, n_ctx=2048, n_threads=2, verbose=False, chat_format="llama-3")
+
+raw_quiz = create_quiz(llm)
+parsed_quiz = parse_quiz(raw_quiz)
 
 with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
     gr.Markdown("""
