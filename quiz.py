@@ -10,17 +10,9 @@ def create_quiz(llm):
     "content": (
         "Generate exactly 10 multiple-choice questions about machine learning.\n"
         "Each question must have 4 options (A-D) and exactly one correct answer.\n\n"
-        "Use the exact format below, but replace 'Question text goes here.' and 'Text' with real questions and answers:\n\n"
-
-        "QUESTION 1\n"
-        "Question text goes here.\n"
-        "OPTION A: Text\n"
-        "OPTION B: Text\n"
-        "OPTION C: Text\n"
-        "OPTION D: Text\n"
-        "ANSWER: A\n"
-        "END\n\n"
-
+        "Start each question like 'QUESTION 1' and then continue with the four options like this:"
+        "A: <option A>, B: <option B>, C: <option C>, D: <option D> but replace each <option> "
+        "with the generated possible answers. At the end write 'ANSWER:' and the answer (A, B, C or D)."
         "Repeat the same format for QUESTIONS 2 through 10."
     )
 }
