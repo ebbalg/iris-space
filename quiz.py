@@ -5,16 +5,33 @@ import time
 ### CREATE AND PARSE QUIZ
 
 def create_quiz(llm):
+    # system_prompt = {
+    # "role": "system",
+    # "content": (
+    #     "Generate exactly 10 multiple-choice questions about machine learning.\n"
+    #     "Each question must have 4 options (A-D) and exactly one correct answer.\n\n"
+    #     "Start each question like 'QUESTION 1' and then continue with the four options like this:"
+    #     "A: <option A>, B: <option B>, C: <option C>, D: <option D> but replace each <option> "
+    #     "with the generated possible answers. At the end write 'ANSWER:' and the answer (A, B, C or D)."
+    #     "Repeat the same format for QUESTIONS 2 through 10."
+    # )
+
     system_prompt = {
-    "role": "system",
-    "content": (
-        "Generate exactly 10 multiple-choice questions about machine learning.\n"
-        "Each question must have 4 options (A-D) and exactly one correct answer.\n\n"
-        "Start each question like 'QUESTION 1' and then continue with the four options like this:"
-        "A: <option A>, B: <option B>, C: <option C>, D: <option D> but replace each <option> "
-        "with the generated possible answers. At the end write 'ANSWER:' and the answer (A, B, C or D)."
-        "Repeat the same format for QUESTIONS 2 through 10."
-    )
+        "role": "system",
+        "content": (
+            "Generate exactly 10 multiple-choice questions about machine learning.\n"
+            "Each question must have 4 possible answers (A-D), where only one is the correct answer.\n\n"
+            "Use this format strictly, with line breaks:\n\n"
+            "QUESTION 1\n"
+            "<question>\n"
+            "OPTION A: <option>\n"
+            "OPTION B: <option>\n"
+            "OPTION C: <option>\n"
+            "OPTION D: <option>\n"
+            "ANSWER: <letter>\n"
+            "END\n\n"
+            "Repeat the same format for QUESTIONS 2 through 10, replacing placeholders with generated questions and answers."
+        )
 }
 
 
@@ -25,6 +42,8 @@ def create_quiz(llm):
     )
 
     return response["choices"][0]["message"]["content"]
+
+
 
 
 
