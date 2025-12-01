@@ -75,57 +75,26 @@ def format_question(q_dict):
     return f"**Q:** {q_dict['q']}\n\n{options_text}"
 
 def start_quiz(quiz_parsed):
-    """Initialize quiz state, return first question display."""
     idx = 0
     q = quiz_parsed[idx]
-    return format_question(q), "", f"{idx+1}/{len(quiz_parsed)}", idx, 0, False
+    q_text = format_question(q)
+    return q_text, "", f"{idx+1}/{len(quiz_parsed)}", idx, 0, False
 
 def answer_question(parsed_quiz, selected, idx, score):
     current = parsed_quiz[idx]
     correct = current["answer"]
     if selected.upper() == correct:
         score += 1
-        idx += 1
-        if idx >= len(parsed_quiz):
-            return (
-                "🎉 Quiz Complete!",
-                idx,
-                score,
-                "✅ Correct!",
-                f"{len(parsed_quiz)}/{len(parsed_quiz)}",
-                gr.update(visible=False),
-                gr.update(visible=False),
-                gr.update(visible=False),
-                gr.update(visible=False)
-            )
-        # next question
-        next_q = parsed_quiz[idx]
-        options = next_q["options"]
-        return (
-            next_q["q"],
-            idx,
-            score,
-            "✅ Correct!",
-            f"{idx+1}/{len(parsed_quiz)}",
-            gr.update(value=f"A: {options[0]}"),
-            gr.update(value=f"B: {options[1]}"),
-            gr.update(value=f"C: {options[2]}"),
-            gr.update(value=f"D: {options[3]}")
-        )
+        feedback = "✅ Correct!"
+        # Optionally: move to next question here or keep same question
+        idx += 1 if idx + 1 < len(parsed_quiz) else idx
     else:
-        # incorrect → keep question and options the same
-        options = current["options"]
-        return (
-            current["q"],
-            idx,
-            score,
-            "❌ Incorrect, try again.",
-            f"{idx+1}/{len(parsed_quiz)}",
-            gr.update(value=f"A: {options[0]}"),
-            gr.update(value=f"B: {options[1]}"),
-            gr.update(value=f"C: {options[2]}"),
-            gr.update(value=f"D: {options[3]}")
-        )
+        feedback = "❌ Incorrect, try again."
+
+    q_text = format_question(current if idx < len(parsed_quiz) else {"q": "Quiz Complete!", "options": ["","","",""]})
+    progress = f"{min(idx+1,len(parsed_quiz))}/{len(parsed_quiz)}"
+    return q_text, idx, score, feedback, progress
+
 
 def retry_quiz():
     return start_quiz()
