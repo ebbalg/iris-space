@@ -24,8 +24,7 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
     Ask questions about AI and Machine Learning! Test your understanding with a quiz.
     """)
     
-    gr.Markdown(raw_quiz)
-    gr.Markdown(parsed_quiz)  
+    gr.Markdown(str(parsed_quiz[0]))  
 
     with gr.Row():
         # Chat column
