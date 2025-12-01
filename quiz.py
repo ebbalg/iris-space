@@ -5,62 +5,70 @@ import time
 ### CREATE AND PARSE QUIZ
 
 def create_quiz(llm):
-    '''Generate a multiple choice quiz with 10 questions (created by the llm)'''
+    """Generate a multiple-choice quiz with 10 questions in a strict parseable format"""
     system_prompt = {
         "role": "system",
         "content": (
-            "Generate a set of 10 multiple-choice questions about machine learning for a student."
-            "Each question should have 4 answer options (A–D) with a single correct answer.\n\n"
-            "Format exactly like this:\n\n"
-            "1. Question text...\n"
-            "A) ...\nB) ...\nC) ...\nD) ...\n**Correct Answer: X**\n\n"
+            "Generate 10 multiple-choice questions about machine learning for a student.\n"
+            "Each question must have 4 options (A-D) and exactly one correct answer.\n\n"
+            "Use the exact format below, no extra text, no markdown:\n\n"
+            "QUESTION 1\n"
+            "Question text...\n\n"
+            "OPTION A: ...\n"
+            "OPTION B: ...\n"
+            "OPTION C: ...\n"
+            "OPTION D: ...\n"
+            "ANSWER: X\n"
+            "END\n\n"
+            "Repeat for QUESTIONS 2 through 10."
         )
     }
 
     response = llm.create_chat_completion(
         messages=[system_prompt],
-        max_tokens=512,
+        max_tokens=1024,
         temperature=0.7
     )
 
     return response["choices"][0]["message"]["content"]
 
+
 def parse_quiz(text):
-    question_blocks = re.findall(r'^\s*(\d+)\.\s*(.*?)\s*(?=^\d+\.|\Z)', text, flags=re.S|re.MULTILINE)
     parsed = []
-    for idx, block_text in question_blocks:
-        block = block_text.strip()
-        # Extract the question line before options
-        m_a = re.search(r'\nA[\)\.]', block)
-        if m_a:
-            question_text = block[:m_a.start()].strip()
-            rest = block[m_a.start():].strip()
-        else:
-            question_text = block
-            rest = ""
 
-        # Extract options A-D
-        opts = re.findall(r'^([A-D])[\)\.]\s*(.+)$', rest, flags=re.MULTILINE)
-        options = [opt_text.strip() for letter, opt_text in sorted(opts, key=lambda x: x[0])]
+    # Split the text by 'QUESTION ' to get each question block
+    blocks = [b.strip() for b in text.split("QUESTION ") if b.strip()]
+    for block in blocks:
+        # First line is the question number, we can ignore it
+        lines = block.splitlines()
+        # Remove empty lines
+        lines = [l.strip() for l in lines if l.strip()]
+        if not lines:
+            continue
 
-        # Extract correct answer
-        ans = None
-        m_corr = re.search(r'\*\*\s*Correct Answer\s*:\s*([A-D])\s*\*\*', block, flags=re.I)
-        if m_corr:
-            ans = m_corr.group(1).upper()
+        # Question text is the first line after number
+        question_text = lines[1] if lines[0].isdigit() else lines[0]
+
+        # Parse options
+        options = []
+        for line in lines:
+            if line.startswith("OPTION "):
+                # Example: "OPTION A: To learn from labeled data"
+                parts = line.split(":", 1)
+                if len(parts) == 2:
+                    options.append(parts[1].strip())
+
+        # Parse correct answer
+        correct_line = next((l for l in lines if l.startswith("ANSWER:")), None)
+        if correct_line:
+            correct = correct_line.split(":", 1)[1].strip().upper()
         else:
-            m_corr = re.search(r'Correct Answer\s*:\s*([A-D])', block, flags=re.I)
-            if m_corr:
-                ans = m_corr.group(1).upper()
-            else:
-                m_corr = re.search(r'(?:Correct|Answer)\s*[:\-]\s*([A-D])', block, flags=re.I)
-                if m_corr:
-                    ans = m_corr.group(1).upper()
+            correct = None
 
         parsed.append({
             "q": question_text,
             "options": options,
-            "answer": ans
+            "answer": correct
         })
 
     return parsed
