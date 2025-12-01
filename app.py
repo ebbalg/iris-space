@@ -81,20 +81,20 @@ with gr.Blocks(title="TAI: AI Teacher Assistant") as demo:
             # Start quiz
             def start_quiz_ui():
                 q_data = parsed_quiz[0]
-                q_text = format_question(q_data)  # <-- include options here
+                q_text = format_question(q_data)  # Returns question + options as HTML/Markdown
 
                 return (
-                    q_text,                     # question + options
-                    "",                         # feedback
-                    f"1/{len(parsed_quiz)}",    # progress
-                    0,                          # idx
-                    0,                          # score
-                    gr.update(visible=False),   # hide start button
+                    q_text,                     # question_md
+                    "",                         # feedback_md
+                    f"1/{len(parsed_quiz)}",    # progress_md
+                    0,                          # idx_state
+                    0,                          # score_state
+                    gr.update(visible=False),   # hide start_btn
                     gr.update(visible=True),    # show btn_A
                     gr.update(visible=True),    # show btn_B
                     gr.update(visible=True),    # show btn_C
                     gr.update(visible=True),    # show btn_D
-                    gr.update(visible=True)     # show retry button
+                    gr.update(visible=True)     # show retry_btn
                 )
 
             start_btn.click(

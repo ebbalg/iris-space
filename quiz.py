@@ -75,7 +75,7 @@ def parse_quiz(text):
 
 
 def format_question(q_dict):
-    """Return question text + options as a string for display in Markdown"""
+    """Return question text + options as a string for Markdown display"""
     lines = [q_dict["q"] + "<br>"]
     for letter, option in zip(["A","B","C","D"], q_dict["options"]):
         lines.append(f"{letter}: {option}")
