@@ -69,11 +69,16 @@ def parse_quiz(text):
 
     return parsed
 
+def format_question(q_dict):
+    """Return question text + options as a string for display"""
+    options_text = "\n".join([f"{letter}: {text}" for letter, text in zip(["A","B","C","D"], q_dict["options"])])
+    return f"**Q:** {q_dict['q']}\n\n{options_text}"
+
 def start_quiz(quiz_parsed):
     """Initialize quiz state, return first question display."""
     idx = 0
     q = quiz_parsed[idx]
-    return q["q"], "", f"{idx+1}/{len(quiz_parsed)}", idx, 0, False
+    return format_question(q), "", f"{idx+1}/{len(quiz_parsed)}", idx, 0, False
 
 def answer_question(parsed_quiz, selected, idx, score):
     current = parsed_quiz[idx]
