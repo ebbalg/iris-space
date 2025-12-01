@@ -80,20 +80,7 @@ def start_quiz(parsed_quiz):
     """Initialize quiz state, return first question display."""
     q_data = parsed_quiz[0]
     q_text = format_question(q_data)
-
-    return (
-        q_text,                     # question + options
-        "",                         # feedback
-        f"1/{len(parsed_quiz)}",    # progress
-        0,                          # idx
-        0,                          # score
-        gr.update(visible=False),   # hide start button
-        gr.update(visible=True),    # show btn_A
-        gr.update(visible=True),    # show btn_B
-        gr.update(visible=True),    # show btn_C
-        gr.update(visible=True),    # show btn_D
-        gr.update(visible=True)     # show retry button
-    )
+    return q_text, "", f"{1}/{len(parsed_quiz)}", 0, 0  # question_md, feedback, progress, idx, score
 
 
 def answer_question(parsed_quiz, selected, idx, score):
