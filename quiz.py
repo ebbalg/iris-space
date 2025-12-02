@@ -102,16 +102,12 @@ def answer_question(parsed_quiz, selected, idx, score):
     if selected.upper() == correct:
         score += 1
         feedback = "✅ Correct!"
-        # Move to next question after 1 second
-        time.sleep(2)
         idx += 1
+        current = parsed_quiz[idx]
         if idx >= len(parsed_quiz):
             question_text = "🎉 Quiz Complete!"
             progress = f"{len(parsed_quiz)}/{len(parsed_quiz)}"
             return question_text, idx, score, "", progress  # feedback cleared at end
-        current = parsed_quiz[idx]
-        # Clear feedback for the next question
-        feedback = ""
     else:
         feedback = "❌ Incorrect, try again."
 
