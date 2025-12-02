@@ -1,3 +1,15 @@
+---
+title: "Gh Action"
+emoji: 🐨
+colorFrom: blue
+colorTo: red
+sdk: gradio
+sdk_version: 6.0.0
+app_file: app.py
+pinned: false
+license: mit
+---
+
 ## Overview 
 
 This project demonstrates the fine tuning of a LLaMA 3.2 3B model using the QLoRA strategy. In this method, the model's original weights are frozen and small "adapters" matrices are trained. This type of fine tuning drastrically reduces the number of parameters to train, which is significant when starting with LLMs with billions of parameters. QLoRA is an extension of this, where weights are quantized in a compress format, speeding up the entire process.
